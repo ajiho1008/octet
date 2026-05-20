@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>옥텟 규칙 원소 결합 퍼즐 (v4.0 대확장 버전)</title>
+    <title>옥텟 규칙 원소 결합 퍼즐</title>
     <style>
         :root {
             --bg-color: #1a1a2e;
@@ -35,24 +35,12 @@
         .status-bar {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             width: 100%;
             max-width: 400px;
             font-size: 0.85rem;
             color: #b3b3b3;
             margin-bottom: 10px;
             padding: 0 5px;
-        }
-
-        #reroll-btn {
-            background-color: var(--accent-purple);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            font-weight: bold;
         }
 
         #info-board {
@@ -79,23 +67,20 @@
             color: #e0e0e0;
         }
 
-        /* 결합 공간 */
         #bond-zone {
             width: 100%;
             max-width: 400px;
-            height: 180px;
+            height: 200px;
             border: 3px dashed var(--accent-purple);
             border-radius: 15px;
             background-color: rgba(22, 36, 71, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 15px;
             position: relative;
             box-sizing: border-box;
-            flex-wrap: wrap;
-            padding: 10px;
         }
 
         .zone-placeholder {
@@ -105,10 +90,8 @@
             pointer-events: none;
             text-align: center;
             line-height: 1.4;
-            z-index: 1;
         }
 
-        /* 원소 카드 보관함 */
         #card-container {
             display: flex;
             gap: 8px;
@@ -118,46 +101,247 @@
             border-radius: 12px;
             width: 100%;
             max-width: 400px;
-            min-height: 110px;
+            min-height: 95px;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
             box-sizing: border-box;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* 원소 카드 스타일 */
         .element-card {
-            width: 62px;
-            height: 82px;
-            background-color: #ffffff !important;
+            width: 65px;
+            height: 85px;
+            background-color: #ffffff;
             border: 2px solid #bdc3c7;
             border-radius: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 2px;
-            cursor: grab;
+            padding: 6px 4px;
+            cursor: pointer;
             user-select: none;
-            touch-action: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             box-sizing: border-box;
-            color: #1a1a2e !important;
-            position: relative;
+            transition: transform 0.15s;
         }
 
         .element-card:active {
-            cursor: grabbing;
+            transform: scale(0.95);
         }
 
         .element-symbol {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            pointer-events: none; 
+            color: #1a1a2e;
         }
 
         .electron-dots {
-            font-size: 0.65rem;
-            color: #e74c3c !important;
+            font-size: 0.7rem;
+            color: #e74c3c;
             font-weight: bold;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        #check-btn { background-color: #2ecc71; }
+        #reset-btn { background-color: #e74c3c; }
+
+        #result-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #222831;
+            border: 2px solid #2ecc71;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 10;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+            box-sizing: border-box;
+        }
+
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 5;
+        }
+
+        #modal-description {
+            color: #eeeeee;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            text-align: left;
+            white-space: pre-line;
+            background: #393e46;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>옥텟 규칙 원소 결합 퍼즐<br><span style="font-size:1rem; color:#a0a0e0;">(v2.1 Stable)</span></h1>
+    
+    <div class="status-bar">
+        <span id="score-view">해결한 화합물: 0개</span>
+        <span>시스템 정상 작동 중</span>
+    </div>
+
+    <div id="info-board">
+        <h2 id="info-title">화학 결합 대기 중</h2>
+        <p id="info-sub">원소 카드를 터치하여 상단 결합 공간으로 보내세요!</p>
+    </div>
+
+    <div id="bond-zone">
+        <div class="zone-placeholder" id="placeholder-text">
+            원소 카드를 클릭하여 결합<br>(여기에 드롭도 가능)
+        </div>
+    </div>
+
+    <div id="card-container">
+        <div class="element-card" data-element="Na" onclick="moveCard(this)">
+            <div class="element-symbol">Na</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="Cl" onclick="moveCard(this)">
+            <div class="element-symbol">Cl</div>
+            <div class="electron-dots">••••••• (7)</div>
+        </div>
+        <div class="element-card" data-element="H" onclick="moveCard(this)">
+            <div class="element-symbol">H</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="H" onclick="moveCard(this)">
+            <div class="element-symbol">H</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="O" onclick="moveCard(this)">
+            <div class="element-symbol">O</div>
+            <div class="electron-dots">•••••• (6)</div>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <button id="check-btn">화학 결합 검증 실행</button>
+        <button id="reset-btn">원소 회수 (초기화)</button>
+    </div>
+
+    <div id="modal-overlay"></div>
+    <div id="result-modal">
+        <h2 id="modal-title" style="color: #2ecc71; margin-top:0;">결합 성공! 🎉</h2>
+        <p id="modal-compound" style="font-size: 1.2rem; font-weight: bold; color: #f4d03f; margin: 5px 0;"></p>
+        <div id="modal-description"></div>
+        <button onclick="closeModal()" style="background-color: #ef476f; color: white; margin-top: 5px; padding: 8px 0; width:100%;">확인</button>
+    </div>
+
+    <script>
+        const bondZone = document.getElementById('bond-zone');
+        const cardContainer = document.getElementById('card-container');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const placeholderText = document.getElementById('placeholder-text');
+        const scoreView = document.getElementById('score-view');
+        const modal = document.getElementById('result-modal');
+        const overlay = document.getElementById('modal-overlay');
+
+        let solvedCount = 0;
+
+        function moveCard(card) {
+            if (card.parentElement === cardContainer) {
+                bondZone.appendChild(card);
+            } else {
+                cardContainer.appendChild(card);
+            }
+            togglePlaceholder();
+        }
+
+        function togglePlaceholder() {
+            const currentElements = bondZone.querySelectorAll('.element-card');
+            placeholderText.style.display = currentElements.length > 0 ? 'none' : 'block';
+        }
+
+        let draggedCard = null;
+        document.querySelectorAll('.element-card').forEach(card => {
+            card.setAttribute('draggable', 'true');
+            card.addEventListener('dragstart', () => { draggedCard = card; });
+        });
+
+        bondZone.addEventListener('dragover', (e) => { e.preventDefault(); });
+        bondZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedCard) { bondZone.appendChild(draggedCard); togglePlaceholder(); }
+        });
+
+        cardContainer.addEventListener('dragover', (e) => { e.preventDefault(); });
+        cardContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedCard) { cardContainer.appendChild(draggedCard); togglePlaceholder(); }
+        });
+
+        checkBtn.addEventListener('click', () => {
+            const currentCards = Array.from(bondZone.querySelectorAll('.element-card'));
+            const elements = currentCards.map(card => card.getAttribute('data-element'));
+            const counts = {};
+            elements.forEach(el => counts[el] = (counts[el] || 0) + 1);
+
+            if (counts['Na'] === 1 && counts['Cl'] === 1 && elements.length === 2) {
+                solvedCount++;
+                scoreView.innerText = `해결한 화합물: ${solvedCount}개`;
+                showSuccess("염화나트륨 (NaCl)", "[이온 결합]\n나트륨(Na)의 전자 1개가 염소(Cl)로 완전히 이동하여 옥텟 규칙을 만족합니다.\n\n[일상 속 쓰임새]\n우리가 먹는 '소금'의 주성분이며 전해질 균형에 필수적입니다.");
+            } else if (counts['H'] === 2 && counts['O'] === 1 && elements.length === 3) {
+                solvedCount++;
+                scoreView.innerText = `해결한 화합물: ${solvedCount}개`;
+                showSuccess("물 (H₂O)", "[공유 결합]\n산소(O) 원자 1개가 수소(H) 원자 2개와 각각 전자쌍을 공유하여 옥텟 규칙을 만족합니다.\n\n[일상 속 쓰임새]\n지구상의 모든 생명 활동을 지탱하는 기본 물질입니다.");
+            } else {
+                alert("옥텟 규칙 위반! 원소 조합을 다시 확인해 주세요.");
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            const cards = Array.from(bondZone.querySelectorAll('.element-card'));
+            cards.forEach(card => cardContainer.appendChild(card));
+            togglePlaceholder();
+        });
+
+        function showSuccess(compound, description) {
+            document.getElementById('modal-compound').innerText = compound;
+            document.getElementById('modal-description').innerText = description;
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            const cards = Array.from(bondZone.querySelectorAll('.element-card'));
+            cards.forEach(card => cardContainer.appendChild(card));
+            togglePlaceholder();
+        }
+    </script>
+</body>
+</html>
