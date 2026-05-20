@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>옥텟 규칙을 만족하라! 원소 결합 퍼즐 게임 (수해리베~카)</title>
+    <title>옥텟 규칙 마스터! 하드코어 원소 결합 퍼즐</title>
     <style>
         :root {
-            --primary: #3498db;
+            --primary: #34495e;
+            --accent: #9b59b6;
             --success: #2ecc71;
             --danger: #e74c3c;
-            --dark: #2c3e50;
-            --bg: #f5f7fa;
+            --bg: #1a1a24;
+            --card-bg: #2c3e50;
         }
 
         body {
             font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
             background-color: var(--bg);
+            color: #ffffff;
             margin: 0;
             padding: 15px;
             display: flex;
@@ -26,113 +28,136 @@
         }
 
         h1 {
-            color: var(--dark);
+            color: #ecf0f1;
             margin: 10px 0 5px 0;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             text-align: center;
+            font-weight: 800;
         }
 
-        #target-info {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #e67e22;
-            margin-bottom: 5px;
-            background: #fff5eb;
-            border: 2px solid #f39c12;
-            padding: 8px 20px;
-            border-radius: 20px;
-            text-align: center;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #7f8c8d;
+        /* 스코어 및 목표 화합물 인터페이스 */
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 95%;
+            max-width: 600px;
+            margin-bottom: 10px;
             font-size: 0.9rem;
-            margin-bottom: 15px;
+            color: #bdc3c7;
         }
 
-        /* 결합 공간 */
+        #target-box {
+            width: 95%;
+            max-width: 600px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        #target-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #f1c40f;
+            margin-bottom: 5px;
+        }
+
+        #target-hint {
+            font-size: 0.85rem;
+            color: #bdc3c7;
+            line-height: 1.4;
+        }
+
+        /* 결합 실험실 공간 */
         #bond-zone {
             width: 95%;
             max-width: 600px;
-            height: 220px;
-            border: 3px dashed var(--primary);
+            height: 200px;
+            border: 3px dashed var(--accent);
             border-radius: 20px;
-            background-color: #ffffff;
+            background-color: #24252f;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
             position: relative;
-            box-shadow: inset 0 0 15px rgba(52, 152, 219, 0.05), 0 8px 20px rgba(0,0,0,0.06);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         #bond-zone::before {
-            content: "목표 분자가 되도록 카드를 여기에 드래그하세요";
+            content: "원소 카드를 드래그하여 결합(여기에 드롭)";
             position: absolute;
-            color: #bdc3c7;
+            color: #5f6277;
             font-size: 0.9rem;
             font-weight: bold;
             pointer-events: none;
+            top: 45%;
         }
 
         #bond-zone.has-items::before {
             opacity: 0;
         }
 
-        /* 하단 랜덤 인벤토리 영역 */
+        /* 하단 인벤토리 영역 */
         #card-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 20px;
-            background: #eef2f7;
-            padding: 15px;
+            background: #111217;
+            padding: 12px;
             border-radius: 16px;
             width: 95%;
             max-width: 600px;
             justify-content: center;
             min-height: 110px;
             flex-wrap: wrap;
+            border: 1px solid #2c2d35;
         }
 
-        /* 원소 카드 기본 디자인 */
+        /* 하드코어 원소 카드 스타일 (다크 테마) */
         .element-card {
-            width: 70px;
-            height: 95px;
-            background: #ffffff;
-            border: 2px solid #dcdde1;
-            border-radius: 12px;
+            width: 62px;
+            height: 88px;
+            background: var(--card-bg);
+            border: 2px solid #455a64;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 4px;
+            padding: 6px 2px;
             cursor: grab;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             position: relative;
             touch-action: none;
             box-sizing: border-box;
         }
 
         .element-card.dragging {
-            opacity: 0.5;
+            opacity: 0.4;
             transform: scale(1.05);
         }
 
-        /* 원자 번호 표시 */
         .atomic-number {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #95a5a6;
             align-self: flex-start;
-            margin-left: 5px;
+            margin-left: 4px;
+            font-weight: bold;
         }
 
         .element-symbol {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 800;
-            color: var(--dark);
-            margin-top: -5px;
+            color: #ffffff;
+            margin-top: -4px;
         }
 
         .electron-container {
@@ -141,17 +166,17 @@
             justify-content: center;
             gap: 2px;
             width: 95%;
-            min-height: 16px;
+            min-height: 14px;
         }
 
         .dot {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             background-color: #e74c3c;
             border-radius: 50%;
         }
 
-        /* 버튼 바 */
+        /* 버튼 컨트롤 */
         .btn-group {
             display: flex;
             gap: 15px;
@@ -162,24 +187,26 @@
         button {
             flex: 1;
             padding: 14px;
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: bold;
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            color: white;
+            transition: background 0.2s;
         }
 
-        #check-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
-        #reset-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        #check-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        #reset-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 
-        /* 결과 창 모달 */
+        /* 결과 안내 팝업 모달 */
         #modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(44, 62, 80, 0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             z-index: 99;
         }
 
@@ -188,21 +215,22 @@
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 30px 25px;
+            background-color: #2c3e50;
+            padding: 25px;
             border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             z-index: 100;
             text-align: center;
             width: 85%;
-            max-width: 360px;
+            max-width: 380px;
+            border: 2px solid var(--success);
         }
 
         #modal-compound {
-            font-size: 1.3rem;
-            color: var(--primary);
-            background: #e8f4fd;
-            padding: 8px 15px;
+            font-size: 1.4rem;
+            color: #f1c40f;
+            background: #1a1a24;
+            padding: 8px 20px;
             border-radius: 30px;
             display: inline-block;
             margin: 10px 0;
@@ -210,18 +238,18 @@
         }
 
         #modal-description {
-            color: #555;
-            line-height: 1.6;
-            font-size: 0.95rem;
+            color: #ecf0f1;
+            line-height: 1.5;
+            font-size: 0.9rem;
             text-align: left;
             white-space: pre-line;
-            background: #f8f9fa;
+            background: #233342;
             padding: 15px;
             border-radius: 12px;
             margin-top: 10px;
         }
 
-        .close-btn { background: var(--dark); color: white; width: 100%; margin-top: 15px; }
+        .close-btn { background: #7f8c8d; color: white; width: 100%; margin-top: 15px; }
         
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -232,227 +260,52 @@
 </head>
 <body>
 
-    <h1>옥텟 규칙 원소 결합 퍼즐</h1>
-    <div id="target-info">목표 화합물: 로딩중...</div>
-    <div class="subtitle">랜덤 인벤토리에서 원소를 찾아 결합 공간에 드래그하세요!</div>
+    <h1>옥텟 규칙 원소 결합 퍼즐 (Hardcore v2.0)</h1>
+    
+    <div id="status-bar">
+        <span id="score-count">해결한 화합물: 0개</span>
+        <span>주기율표 무작위 리롤 시스템</span>
+    </div>
+
+    <div id="target-box">
+        <div id="target-name">화합물 불러오는 중...</div>
+        <div id="target-hint">힌트 데이터 분석 중...</div>
+    </div>
 
     <div id="bond-zone"></div>
     <div id="card-container"></div>
 
     <div class="btn-group">
-        <button id="check-btn">결합 확인</button>
-        <button id="reset-btn">초기화</button>
+        <button id="check-btn">화학 결합 검증 실행</button>
+        <button id="reset-btn">원소 회수 (초기화)</button>
     </div>
 
     <div id="modal-overlay"></div>
     <div id="result-modal">
-        <h2 style="color: #2ecc71; margin-top:0;">실험 성공! 🎉</h2>
+        <h2 style="color: var(--success); margin-top:0;">결합 구조 검증 성공! ⚗️</h2>
         <div id="modal-compound"></div>
         <div id="modal-description"></div>
-        <button class="close-btn" id="next-stage-btn">인벤토리 랜덤 리롤 & 다음 문제</button>
+        <button class="close-btn" id="next-stage-btn">다음 무작위 난제 풀기</button>
     </div>
 
     <script>
-        // --- 1. 원자번호 1번부터 20번까지 마스터 데이터 정의 ---
+        // --- 1. 주기율표 1번~20번 원소 완전 데이터 정의 ---
         const periodicTable = {
-            1: { symbol: "H", valie: 1 },   2: { symbol: "He", valie: 8 },
-            3: { symbol: "Li", valie: 1 },  4: { symbol: "Be", valie: 2 },
-            5: { symbol: "B", valie: 3 },   6: { symbol: "C", valie: 4 },
-            7: { symbol: "N", valie: 5 },   8: { symbol: "O", valie: 6 },
-            9: { symbol: "F", valie: 7 },   10: { symbol: "Ne", valie: 8 },
-            11: { symbol: "Na", valie: 1 }, 12: { symbol: "Mg", valie: 2 },
-            13: { symbol: "Al", valie: 3 }, 14: { symbol: "Si", valie: 4 },
-            15: { symbol: "P", valie: 5 },  16: { symbol: "S", valie: 6 },
-            17: { symbol: "Cl", valie: 7 }, 18: { symbol: "Ar", valie: 8 },
-            19: { symbol: "K", valie: 1 },  20: { symbol: "Ca", valie: 2 }
+            1: { symbol: "H", val: 1 },   2: { symbol: "He", val: 8 },
+            3: { symbol: "Li", val: 1 },  4: { symbol: "Be", val: 2 },
+            5: { symbol: "B", val: 3 },   6: { symbol: "C", val: 4 },
+            7: { symbol: "N", val: 5 },   8: { symbol: "O", val: 6 },
+            9: { symbol: "F", val: 7 },   10: { symbol: "Ne", val: 8 },
+            11: { symbol: "Na", val: 1 }, 12: { symbol: "Mg", val: 2 },
+            13: { symbol: "Al", val: 3 }, 14: { symbol: "Si", val: 4 },
+            15: { symbol: "P", val: 5 },  16: { symbol: "S", val: 6 },
+            17: { symbol: "Cl", val: 7 }, 18: { symbol: "Ar", val: 8 },
+            19: { symbol: "K", val: 1 },  20: { symbol: "Ca", val: 2 }
         };
 
-        // --- 2. 랜덤 출제될 화합물 족보 데이터 ---
+        // --- 2. [난이도 대폭 향상] 15가지 고난도 화학물질 데이터베이스 ---
         const compoundsPool = [
-            { formula: "NaCl", name: "염화나트륨(소금)", req: { "Na": 1, "Cl": 1 }, desc: "이온 결합 물질로 나트륨의 전자 1개가 염소로 이동합니다. 일상에서 음식 간을 맞추는 소금입니다." },
-            { formula: "H2O", name: "물", req: { "H": 2, "O": 1 }, desc: "공유 결합 물질로 산소 1개와 수소 2개가 전자쌍을 전유합니다. 모든 생명체의 필수 성분입니다." },
-            { formula: "CO2", name: "이산화탄소", req: { "C": 1, "O": 2 }, desc: "탄소와 산소가 이중 공유 결합을 형성합니다. 탄산음료나 소화기, 식물의 광합성에 이용됩니다." },
-            { formula: "CH4", name: "메탄가스", req: { "C": 1, "H": 4 }, desc: "탄소 1개에 수소 4개가 결합하여 대칭 구조를 이룹니다. 천연가스(LNG)의 주성분이며 연료로 쓰입니다." },
-            { formula: "CaCl2", name: "염화칼슘", req: { "Ca": 1, "Cl": 2 }, desc: "칼슘이 전자 2개를 버리고 염소 2개가 각각 받아 결합합니다. 겨울철 눈을 녹이는 제설제로 주로 쓰입니다." },
-            { formula: "HCl", name: "염화수소(염산)", req: { "H": 1, "Cl": 1 }, desc: "수소와 염소가 전자 1쌍을 공유합니다. 물에 녹으면 강산성인 위액의 성분(염산)이 됩니다." }
-        ];
-
-        const bondZone = document.getElementById('bond-zone');
-        const cardContainer = document.getElementById('card-container');
-        const checkBtn = document.getElementById('check-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const modal = document.getElementById('result-modal');
-        const overlay = document.getElementById('modal-overlay');
-        const nextBtn = document.getElementById('next-stage-btn');
-        const targetInfo = document.getElementById('target-info');
-
-        let currentQuestion = null;
-        let draggedCard = null;
-
-        // --- 3. 핵심 로직: 문제 선정 및 인벤토리 랜덤 셔플 생성 ---
-        function startNewRound() {
-            bondZone.innerHTML = '';
-            cardContainer.innerHTML = '';
-            bondZone.classList.remove('has-items');
-
-            // 화합물 풀에서 랜덤으로 문제 하나 선정
-            currentQuestion = compoundsPool[Math.floor(Math.random() * compoundsPool.length)];
-            targetInfo.innerText = `목표 화합물 만들기: ${currentQuestion.name} (${currentQuestion.formula})`;
-
-            // 정답에 꼭 필요한 필수 원소 리스트 추출
-            let inventoryCards = [];
-            for (let symbol in currentQuestion.req) {
-                const count = currentQuestion.req[symbol];
-                // 번호 매핑 찾기
-                const num = Object.keys(periodicTable).find(k => periodicTable[k].symbol === symbol);
-                for(let i=0; i<count; i++) {
-                    inventoryCards.push({ num: num, symbol: symbol, electrons: periodicTable[num].valie });
-                }
-            }
-
-            // 인벤토리를 채우기 위해 1~20번 중 랜덤 원소(방해물) 추가 공급 (총 7개가 되도록 밸런싱)
-            while(inventoryCards.length < 7) {
-                const randomNum = Math.floor(Math.random() * 20) + 1;
-                const data = periodicTable[randomNum];
-                inventoryCards.push({ num: randomNum, symbol: data.symbol, electrons: data.valie });
-            }
-
-            // 인벤토리 카드 무작위 순서로 뒤섞기(셔플)
-            inventoryCards.sort(() => Math.random() - 0.5);
-
-            // 화면에 카드 렌더링
-            inventoryCards.forEach(info => {
-                const card = document.createElement('div');
-                card.className = 'element-card';
-                card.setAttribute('draggable', 'true');
-                card.setAttribute('data-element', info.symbol);
-                
-                card.innerHTML = `
-                    <div class="atomic-number">${info.num}</div>
-                    <div class="element-symbol">${info.symbol}</div>
-                    <div class="electron-container"></div>
-                `;
-
-                // 최외각 전자를 하단에 점으로 동적 부착
-                const container = card.querySelector('.electron-container');
-                // 수소(1번)나 헬륨(2번) 등 예외를 제외하고 가시성을 위해 최외각 전자수만큼 점 생성
-                for(let i=0; i < info.electrons; i++) {
-                    const dot = document.createElement('div');
-                    dot.className = 'dot';
-                    container.appendChild(dot);
-                }
-
-                bindEvents(card);
-                cardContainer.appendChild(card);
-            });
-        }
-
-        // --- 4. 마우스 및 스마트폰 터치 드래그 바인딩 ---
-        function bindEvents(card) {
-            // PC용 마우스
-            card.addEventListener('dragstart', () => { draggedCard = card; card.classList.add('dragging'); });
-            card.addEventListener('dragend', () => { card.classList.remove('dragging'); draggedCard = null; updateZoneStatus(); });
-
-            // 모바일용 터치
-            card.addEventListener('touchstart', () => { draggedCard = card; card.classList.add('dragging'); }, {passive: true});
-            card.addEventListener('touchmove', (e) => {
-                if (!draggedCard) return;
-                const touch = e.touches[0];
-                card.style.position = 'absolute';
-                card.style.left = touch.clientX - 35 + 'px';
-                card.style.top = touch.clientY - 47 + 'px';
-                card.style.zIndex = '1000';
-            }, {passive: true});
-
-            card.addEventListener('touchend', (e) => {
-                card.classList.remove('dragging');
-                card.style.position = 'static';
-                card.style.zIndex = '1';
-
-                const touch = e.changedTouches[0];
-                const zoneRect = bondZone.getBoundingClientRect();
-
-                if (touch.clientX >= zoneRect.left && touch.clientX <= zoneRect.right &&
-                    touch.clientY >= zoneRect.top && touch.clientY <= zoneRect.bottom) {
-                    bondZone.appendChild(card);
-                } else {
-                    cardContainer.appendChild(card);
-                }
-                updateZoneStatus();
-                draggedCard = null;
-            });
-        }
-
-        bondZone.addEventListener('dragover', (e) => { e.preventDefault(); });
-        bondZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedCard) { bondZone.appendChild(draggedCard); }
-        });
-
-        function updateZoneStatus() {
-            if (bondZone.children.length > 0) bondZone.classList.add('has-items');
-            else bondZone.classList.remove('has-items');
-        }
-
-        // --- 5. 실시간 퍼즐 조합 검증 연산부 ---
-        checkBtn.addEventListener('click', () => {
-            const currentCards = Array.from(bondZone.children);
-            const userElements = currentCards.map(card => card.getAttribute('data-element'));
-            
-            // 사용자가 올린 원소의 수량 집계 카운팅
-            const userCounts = {};
-            userElements.forEach(el => userCounts[el] = (userCounts[el] || 0) + 1);
-
-            // 현재 정답 조건과 대조 검사
-            let isCorrect = true;
-            const targetReq = currentQuestion.req;
-
-            // 1) 목표 원소 종류 및 개수가 정확히 일치하는가?
-            for (let symbol in targetReq) {
-                if (userCounts[symbol] !== targetReq[symbol]) {
-                    isCorrect = false;
-                    break;
-                }
-            }
-            // 2) 엉뚱한 불순물 원소가 섞여있진 않은가?
-            for (let symbol in userCounts) {
-                if (!targetReq[symbol]) {
-                    isCorrect = false;
-                    break;
-                }
-            }
-
-            if (isCorrect && Object.keys(userCounts).length > 0) {
-                // 검증 성공 처리 및 모달 안내문 출력
-                document.getElementById('modal-compound').innerText = `${currentQuestion.name} (${currentQuestion.formula})`;
-                document.getElementById('modal-description').innerText = currentQuestion.desc;
-                
-                modal.style.display = 'block';
-                overlay.style.display = 'block';
-            } else {
-                // 검증 실패 시 진동 애니메이션 연출
-                bondZone.style.animation = 'shake 0.4s ease';
-                setTimeout(() => bondZone.style.animation = '', 400);
-                alert("옥텟 규칙 조합에 실패했습니다. 화합물의 분자식을 다시 생각해 보세요!");
-            }
-        });
-
-        // 리롤 및 다음 라운드 버튼 제어
-        nextBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-            overlay.style.display = 'none';
-            startNewRound(); // 완전히 새로운 랜덤 인벤토리 카드셋과 문제 생성
-        });
-
-        // 초기화 버튼 제어
-        resetBtn.addEventListener('click', () => {
-            const cards = Array.from(bondZone.children);
-            cards.forEach(card => cardContainer.appendChild(card));
-            updateZoneStatus();
-        });
-
-        // 게임 시작 진입점
-        startNewRound();
-    </script>
-</body>
-</html>
+            { formula: "H2O", name: "물", req: { "H": 2, "O": 1 }, hint: "산소 원자 1개와 수소 원자 2개가 단일 공유 결합을 형성하는 가장 대표적인 생명의 물질입니다." },
+            { formula: "CO2", name: "이산화탄소", req: { "C": 1, "O": 2 }, hint: "중앙의 탄소 원자가 양쪽의 산소 원자와 각각 강한 이중 공유 결합을 형성합니다." },
+            { formula: "NaCl", name: "염화나트륨", req: { "Na": 1, "Cl": 1 }, hint: "금속 양이온(Na⁺)과 비금속 음이온(Cl⁻)이 정전기적 인력으로 단단하게 뭉치는 이온 결합 물질입니다." },
+            { formula: "CH4", name: "메탄", req: { "C": 1, "H": 4 }, hint: "탄소 1개를 중심으로 수소 4개가 정사면체 구조로
