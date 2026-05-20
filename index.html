@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>옥텟 규칙 원소 결합 퍼즐 (v5.0 최종 완성판)</title>
+    <title>옥텟 규칙 원소 결합 퍼즐 (v5.1 버그 수정 최종판)</title>
     <style>
         :root {
             --bg-color: #1a1a2e;
@@ -64,10 +64,11 @@
 
         #info-board p {
             margin: 0;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #e0e0e0;
             line-height: 1.4;
             word-break: keep-all;
+            letter-spacing: 0.5px;
         }
 
         #bond-zone {
@@ -127,7 +128,7 @@
             box-shadow: 0 3px 5px rgba(0,0,0,0.3);
             box-sizing: border-box;
             aspect-ratio: 1 / 1.25;
-            touch-action: none; /* 화면 스크롤과 카드 드래그 충돌 방지 */
+            touch-action: none;
             transition: transform 0.1s;
         }
 
@@ -221,12 +222,12 @@
     
     <div class="status-bar">
         <span id="score-view">해결한 화합물: 0개 / 9개</span>
-        <span>카드 원터치 이동 & 드래그 동시 지원</span>
+        <span>UI 수정 및 염소 카드 버그 픽스 완료</span>
     </div>
 
     <div id="info-board">
         <h2>미션: 9가지 화합물을 완성하세요!</h2>
-        <p>물(H₂O), 소금(NaCl), 이산화탄소(CO₂), 메테인(CH₄), 염화수소(HCl), 암모니아(NH₃), 산소(O₂), 수소(H₂), 염소(Cl₂)</p>
+        <p>물, 소금, 이산화탄소, 메테인, 염화수소, 암모니아, 산소, 수소, 염소</p>
     </div>
 
     <div id="bond-zone">
@@ -250,6 +251,7 @@
         
         <div class="element-card" data-element="Na"><div class="element-symbol">Na</div><div class="electron-dots">• (1)</div></div>
         
+        <div class="element-card" data-element="Cl"><div class="element-symbol">Cl</div><div class="electron-dots">••••••• (7)</div></div>
         <div class="element-card" data-element="Cl"><div class="element-symbol">Cl</div><div class="electron-dots">••••••• (7)</div></div>
     </div>
 
@@ -284,16 +286,14 @@
             placeholderText.style.display = currentElements.length > 0 ? 'none' : 'block';
         }
 
-        // --- 터치 튕김 현상 완벽 수정 및 원터치 지원 ---
         let activeCard = null;
         let startX = 0, startY = 0;
         let initialX = 0, initialY = 0;
         let isMoved = false;
 
         document.querySelectorAll('.element-card').forEach(card => {
-            // 1. 단순 클릭(터치)으로 카드 이동
             card.addEventListener('click', () => {
-                if (isMoved) return; // 드래그를 한 거라면 클릭 무시
+                if (isMoved) return;
                 if (card.parentElement === cardContainer) {
                     bondZone.appendChild(card);
                 } else {
@@ -302,13 +302,11 @@
                 togglePlaceholder();
             });
 
-            // 2. PC 네이티브 드래그
             card.setAttribute('draggable', 'true');
             card.addEventListener('dragstart', (e) => {
                 activeCard = card;
             });
 
-            // 3. 모바일 터치 드래그
             card.addEventListener('touchstart', (e) => {
                 activeCard = card;
                 isMoved = false;
@@ -327,7 +325,6 @@
                 const dx = touch.clientX - startX;
                 const dy = touch.clientY - startY;
                 
-                // 버그 픽스: 손가락이 5px 이상 움직여야 '드래그'로 판정 (터치 떨림 방지)
                 if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
                     isMoved = true;
                     if (card.style.position !== 'fixed') {
@@ -347,7 +344,6 @@
                 if (!activeCard) return;
                 
                 if (isMoved) {
-                    // 드래그 종료 시 스타일 원상복구
                     card.style.position = '';
                     card.style.left = '';
                     card.style.top = '';
@@ -370,7 +366,6 @@
                         cardContainer.appendChild(card);
                     }
                     
-                    // 드래그 직후 클릭 이벤트가 실행되는 것 방지
                     setTimeout(() => { isMoved = false; }, 50);
                 }
                 activeCard = null;
@@ -390,7 +385,6 @@
             if (activeCard) { cardContainer.appendChild(activeCard); togglePlaceholder(); activeCard = null; }
         });
 
-        // --- 9종 결합 마스터 판정 알고리즘 ---
         checkBtn.addEventListener('click', () => {
             const currentCards = Array.from(bondZone.querySelectorAll('.element-card'));
             const elements = currentCards.map(card => card.getAttribute('data-element'));
@@ -426,7 +420,7 @@
                 successProcess("염소 기체 (Cl₂)", "[공유 결합]\n염소 원자 2개가 전자 1쌍을 공유하여 옥텟 규칙을 만족합니다.\n\n[일상 쓰임새]\n수돗물 소독 및 수영장 물을 살균할 때 쓰입니다.");
             }
             else {
-                alert("❌ 조립 실패!\n목표 화합물 9종의 힌트(화학식)를 확인하시고, 알맞은 개수의 카드를 올려주세요.");
+                alert("❌ 조립 실패!\n목표 화합물 9종의 힌트를 확인하시고, 알맞은 개수의 카드를 올려주세요.");
             }
         });
 
