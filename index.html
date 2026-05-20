@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>옥텟 규칙 원소 결합 퍼즐 (v4.0 9종 마스터판)</title>
+    <title>옥텟 규칙 원소 결합 퍼즐 (v4.1 드래그 완전 수정본)</title>
     <style>
         :root {
             --bg-color: #1a1a2e;
@@ -23,6 +23,7 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            touch-action: manipulation;
         }
 
         h1 {
@@ -120,15 +121,16 @@
             justify-content: space-between;
             align-items: center;
             padding: 5px 2px;
-            cursor: pointer;
+            cursor: grab;
             user-select: none;
             box-shadow: 0 3px 5px rgba(0,0,0,0.3);
             box-sizing: border-box;
             aspect-ratio: 1 / 1.25;
+            touch-action: none; /* 모바일 스크롤과 드래그 충돌 방지 */
         }
 
         .element-card:active {
-            transform: scale(0.95);
+            cursor: grabbing;
         }
 
         .element-symbol {
@@ -136,6 +138,7 @@
             font-weight: bold;
             color: #1a1a2e;
             margin-top: 2px;
+            pointer-events: none;
         }
 
         .electron-dots {
@@ -144,6 +147,7 @@
             font-weight: bold;
             text-align: center;
             margin-bottom: 2px;
+            pointer-events: none;
         }
 
         .btn-group {
@@ -179,7 +183,7 @@
             padding: 18px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 10;
+            z-index: 1010;
             text-align: center;
             width: 85%;
             max-width: 340px;
@@ -191,7 +195,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
-            z-index: 5;
+            z-index: 1005;
         }
 
         #modal-description {
@@ -211,11 +215,11 @@
 </head>
 <body>
 
-    <h1>옥텟 규칙 원소 결합 퍼즐<br><span style="font-size:0.95rem; color:#a0a0e0;">(화합물 9종 마스터 버전)</span></h1>
+    <h1>옥텟 규칙 원소 결합 퍼즐<br><span style="font-size:0.95rem; color:#a0a0e0;">(모바일 드래그 완벽 지원)</span></h1>
     
     <div class="status-bar">
         <span id="score-view">해결한 화합물: 0개 / 9개</span>
-        <span>최적화 격자 시스템 가동</span>
+        <span>하이브리드 터치 시스템 가동</span>
     </div>
 
     <div id="info-board">
@@ -225,26 +229,26 @@
 
     <div id="bond-zone">
         <div class="zone-placeholder" id="placeholder-text">
-            원소를 터치하여 결합 공간에 넣으세요
+            원소를 끌어다 결합 공간에 넣으세요 (클릭도 가능)
         </div>
     </div>
 
     <div id="card-container">
-        <div class="element-card" data-element="H" onclick="moveCard(this)"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
-        <div class="element-card" data-element="H" onclick="moveCard(this)"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
-        <div class="element-card" data-element="H" onclick="moveCard(this)"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
-        <div class="element-card" data-element="H" onclick="moveCard(this)"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
+        <div class="element-card" data-element="H"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
+        <div class="element-card" data-element="H"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
+        <div class="element-card" data-element="H"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
+        <div class="element-card" data-element="H"><div class="element-symbol">H</div><div class="electron-dots">• (1)</div></div>
         
-        <div class="element-card" data-element="C" onclick="moveCard(this)"><div class="element-symbol">C</div><div class="electron-dots">•••• (4)</div></div>
+        <div class="element-card" data-element="C"><div class="element-symbol">C</div><div class="electron-dots">•••• (4)</div></div>
         
-        <div class="element-card" data-element="N" onclick="moveCard(this)"><div class="element-symbol">N</div><div class="electron-dots">••••• (5)</div></div>
+        <div class="element-card" data-element="N"><div class="element-symbol">N</div><div class="electron-dots">••••• (5)</div></div>
 
-        <div class="element-card" data-element="O" onclick="moveCard(this)"><div class="element-symbol">O</div><div class="electron-dots">•••••• (6)</div></div>
-        <div class="element-card" data-element="O" onclick="moveCard(this)"><div class="element-symbol">O</div><div class="electron-dots">•••••• (6)</div></div>
+        <div class="element-card" data-element="O"><div class="element-symbol">O</div><div class="electron-dots">•••••• (6)</div></div>
+        <div class="element-card" data-element="O"><div class="element-symbol">O</div><div class="electron-dots">•••••• (6)</div></div>
         
-        <div class="element-card" data-element="Na" onclick="moveCard(this)"><div class="element-symbol">Na</div><div class="electron-dots">• (1)</div></div>
+        <div class="element-card" data-element="Na"><div class="element-symbol">Na</div><div class="electron-dots">• (1)</div></div>
         
-        <div class="element-card" data-element="Cl" onclick="moveCard(this)"><div class="element-symbol">Cl</div><div class="electron-dots">••••••• (7)</div></div>
+        <div class="element-card" data-element="Cl"><div class="element-symbol">Cl</div><div class="electron-dots">••••••• (7)</div></div>
     </div>
 
     <div class="btn-group">
@@ -271,23 +275,116 @@
         const overlay = document.getElementById('modal-overlay');
 
         let solvedCount = 0;
-        const solvedList = new Set(); // 중복 성공 방지
-
-        function moveCard(card) {
-            if (card.parentElement === cardContainer) {
-                bondZone.appendChild(card);
-            } else {
-                cardContainer.appendChild(card);
-            }
-            togglePlaceholder();
-        }
+        const solvedList = new Set();
 
         function togglePlaceholder() {
             const currentElements = bondZone.querySelectorAll('.element-card');
             placeholderText.style.display = currentElements.length > 0 ? 'none' : 'block';
         }
 
-        // --- 무적의 9종 결합 마스터 판정 매트릭스 ---
+        // --- [핵심 수정] 모바일/PC 통합 하이브리드 드래그 시스템 ---
+        let activeCard = null;
+        let startX = 0, startY = 0;
+        let initialX = 0, initialY = 0;
+        let isMoved = false;
+
+        document.querySelectorAll('.element-card').forEach(card => {
+            // 1. PC 마우스 드래그 시스템 연동
+            card.setAttribute('draggable', 'true');
+            card.addEventListener('dragstart', (e) => {
+                activeCard = card;
+                e.dataTransfer.setData('text/plain', ''); 
+            });
+
+            // 2. 모바일 터치 드래그 완벽 구현
+            card.addEventListener('touchstart', (e) => {
+                activeCard = card;
+                isMoved = false;
+                const touch = e.touches[0];
+                const rect = card.getBoundingClientRect();
+                
+                startX = touch.clientX;
+                startY = touch.clientY;
+                initialX = rect.left;
+                initialY = rect.top;
+
+                // 드래그 중인 카드를 화면 최상단 띄우기 기본 세팅
+                card.style.width = rect.width + 'px';
+                card.style.height = rect.height + 'px';
+            }, { passive: true });
+
+            card.addEventListener('touchmove', (e) => {
+                if (!activeCard) return;
+                isMoved = true;
+                const touch = e.touches[0];
+                
+                const dx = touch.clientX - startX;
+                const dy = touch.clientY - startY;
+
+                // 카드가 손가락을 따라 부드럽게 이동하게 처리
+                card.style.position = 'fixed';
+                card.style.left = (initialX + dx) + 'px';
+                card.style.top = (initialY + dy) + 'px';
+                card.style.zIndex = '1000';
+                card.style.pointerEvents = 'none'; // 손가락 아래 영역 감지용 허용
+            }, { passive: false });
+
+            card.addEventListener('touchend', (e) => {
+                if (!activeCard) return;
+                
+                // 스타일 원상 복구
+                card.style.position = '';
+                card.style.left = '';
+                card.style.top = '';
+                card.style.zIndex = '';
+                card.style.width = '';
+                card.style.height = '';
+                card.style.pointerEvents = '';
+
+                // 단순 탭(클릭)한 경우 상하 영역 자동 이동 처리
+                if (!isMoved) {
+                    if (card.parentElement === cardContainer) {
+                        bondZone.appendChild(card);
+                    } else {
+                        cardContainer.appendChild(card);
+                    }
+                } else {
+                    // 드래그 후 손을 뗀 좌표 분석하여 안착시키기
+                    const touch = e.changedTouches[0];
+                    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    
+                    if (dropTarget) {
+                        const zone = dropTarget.closest('#bond-zone');
+                        const container = dropTarget.closest('#card-container');
+                        if (zone) {
+                            bondZone.appendChild(card);
+                        } else {
+                            cardContainer.appendChild(card);
+                        }
+                    } else {
+                        cardContainer.appendChild(card);
+                    }
+                }
+                
+                activeCard = null;
+                togglePlaceholder();
+            });
+        });
+
+        // PC 전용 드롭 이벤트 처리
+        bondZone.addEventListener('dragover', (e) => e.preventDefault());
+        bondZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (activeCard) { bondZone.appendChild(activeCard); togglePlaceholder(); activeCard = null; }
+        });
+
+        cardContainer.addEventListener('dragover', (e) => e.preventDefault());
+        cardContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (activeCard) { cardContainer.appendChild(activeCard); togglePlaceholder(); activeCard = null; }
+        });
+
+        // --- 9종 결합 마스터 판정 알고리즘 ---
         checkBtn.addEventListener('click', () => {
             const currentCards = Array.from(bondZone.querySelectorAll('.element-card'));
             const elements = currentCards.map(card => card.getAttribute('data-element'));
@@ -295,4 +392,61 @@
             elements.forEach(el => counts[el] = (counts[el] || 0) + 1);
             const total = elements.length;
 
-            // 1. 소
+            if (counts['Na'] === 1 && counts['Cl'] === 1 && total === 2) {
+                successProcess("염화나트륨 (NaCl)", "[이온 결합]\n나트륨의 최외각 전자 1개가 염소로 이동하여 각각 양이온과 음이온이 되며 결합합니다.\n\n[일상 쓰임새]\n우리가 먹는 음식의 핵심 조미료인 소금입니다.");
+            } 
+            else if (counts['H'] === 2 && counts['O'] === 1 && total === 3) {
+                successProcess("물 (H₂O)", "[공유 결합]\n산소 원자 1개가 수소 원자 2개와 각각 전자 1쌍씩을 공유하여 단일 결합을 이룹니다.\n\n[일상 쓰임새]\n지구 생명체 유지에 필수적인 물입니다.");
+            } 
+            else if (counts['C'] === 1 && counts['O'] === 2 && total === 3) {
+                successProcess("이산화탄소 (CO₂)", "[공유 결합]\n탄소 1개가 산소 2개와 각각 2쌍의 전자를 공유하는 '이중 결합'을 형성합니다.\n\n[일상 쓰임새]\n식물의 광합성 원료 및 탄산음료에 쓰입니다.");
+            }
+            else if (counts['C'] === 1 && counts['H'] === 4 && total === 5) {
+                successProcess("메테인 (CH₄)", "[공유 결합]\n탄소가 사방으로 수소 4개와 전자를 공유해 완벽한 정사면체 구조를 이룹니다.\n\n[일상 쓰임새]\n가정용 도시가스(LNG)의 주성분입니다.");
+            }
+            else if (counts['H'] === 1 && counts['Cl'] === 1 && total === 2) {
+                successProcess("염화수소 (HCl)", "[공유 결합]\n수소와 염소가 전자 1쌍을 공유합니다. 물에 녹으면 강산인 염산이 됩니다.\n\n[일상 쓰임새]\n우리 위장에서 분비되는 위산의 주성분입니다.");
+            }
+            else if (counts['N'] === 1 && counts['H'] === 3 && total === 4) {
+                successProcess("암모니아 (NH₃)", "[공유 결합]\n질소 원자가 3개의 수소 원자와 전자쌍을 공유하여 삼각뿔 형태를 만듭니다.\n\n[일상 쓰임새]\n농업용 비료 및 정밀 화학 제품의 원료입니다.");
+            }
+            else if (counts['O'] === 2 && total === 2) {
+                successProcess("산소 기체 (O₂)", "[공유 결합]\n산소 원자 2개가 서로 전자 2쌍을 공유하여 강력한 이중 결합을 형성합니다.\n\n[일상 쓰임새]\n생명체의 호흡에 필수적인 기체입니다.");
+            }
+            else if (counts['H'] === 2 && total === 2) {
+                successProcess("수소 기체 (H₂)", "[공유 결합]\n수소 원자 2개가 전자 1쌍을 공유하여 안정된 분자 껍질을 만듭니다.\n\n[일상 쓰임새]\n우주선 연료 및 미래 친환경 수소차의 에너지원입니다.");
+            }
+            else if (counts['Cl'] === 2 && total === 2) {
+                successProcess("염소 기체 (Cl₂)", "[공유 결합]\n염소 원자 2개가 전자 1쌍을 공유하여 옥텟 규칙을 만족합니다.\n\n[일상 쓰임새]\n수돗물 소독 및 수영장 물을 살균할 때 쓰입니다.");
+            }
+            else {
+                alert("옥텟 규칙에 어긋나거나 미등록된 조합입니다. 다시 조합해 보세요!");
+            }
+        });
+
+        function successProcess(compound, text) {
+            if (!solvedList.has(compound)) {
+                solvedList.add(compound);
+                solvedCount = solvedList.size;
+                scoreView.innerText = `해결한 화합물: ${solvedCount}개 / 9개`;
+            }
+            document.getElementById('modal-compound').innerText = compound;
+            document.getElementById('modal-description').innerText = text;
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        resetBtn.addEventListener('click', () => {
+            const cards = Array.from(bondZone.querySelectorAll('.element-card'));
+            cards.forEach(card => cardContainer.appendChild(card));
+            togglePlaceholder();
+        });
+
+        function closeModal() {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            resetBtn.click();
+        }
+    </script>
+</body>
+</html>
