@@ -2,278 +2,267 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>옥텟 규칙 마스터! 하드코어 원소 결합 퍼즐</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>옥텟 규칙 원소 결합 퍼즐 (Hardcore v2.0)</title>
     <style>
         :root {
-            --primary: #34495e;
-            --accent: #9b59b6;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --bg: #1a1a24;
-            --card-bg: #2c3e50;
+            --bg-color: #1a1a2e;
+            --card-area-color: #162447;
+            --accent-purple: #8134af;
+            --text-color: #ffffff;
         }
 
         body {
-            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-            background-color: var(--bg);
-            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            user-select: none;
-            -webkit-user-select: none;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         h1 {
-            color: #ecf0f1;
+            font-size: 1.4rem;
             margin: 10px 0 5px 0;
-            font-size: 1.5rem;
             text-align: center;
-            font-weight: 800;
+            font-weight: bold;
         }
 
-        /* 스코어 및 목표 화합물 인터페이스 */
-        #status-bar {
+        .status-bar {
             display: flex;
             justify-content: space-between;
-            width: 95%;
-            max-width: 600px;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            color: #bdc3c7;
-        }
-
-        #target-box {
-            width: 95%;
-            max-width: 600px;
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 15px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
-
-        #target-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #f1c40f;
-            margin-bottom: 5px;
-        }
-
-        #target-hint {
+            width: 100%;
+            max-width: 400px;
             font-size: 0.85rem;
-            color: #bdc3c7;
-            line-height: 1.4;
+            color: #b3b3b3;
+            margin-bottom: 10px;
+            padding: 0 5px;
         }
 
-        /* 결합 실험실 공간 */
+        /* 메인 알림 보드 (로딩 메시지 제거하고 인게임 정보창으로 변경) */
+        #info-board {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(135deg, #2d142c, #510a32);
+            border: 2px solid var(--accent-purple);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        #info-board h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: #f4d03f;
+        }
+
+        #info-board p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #e0e0e0;
+        }
+
+        /* 결합 공간 (점선 영역) */
         #bond-zone {
-            width: 95%;
-            max-width: 600px;
+            width: 100%;
+            max-width: 400px;
             height: 200px;
-            border: 3px dashed var(--accent);
-            border-radius: 20px;
-            background-color: #24252f;
+            border: 3px dashed var(--accent-purple);
+            border-radius: 15px;
+            background-color: rgba(22, 36, 71, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
             margin-bottom: 15px;
             position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-            flex-wrap: wrap;
-            padding: 10px;
             box-sizing: border-box;
+            transition: background 0.3s;
         }
 
-        #bond-zone::before {
-            content: "원소 카드를 드래그하여 결합(여기에 드롭)";
+        #bond-zone.drag-over {
+            background-color: rgba(129, 52, 175, 0.3);
+        }
+
+        .zone-placeholder {
             position: absolute;
-            color: #5f6277;
-            font-size: 0.9rem;
-            font-weight: bold;
+            color: #75759e;
+            font-size: 0.85rem;
             pointer-events: none;
-            top: 45%;
+            text-align: center;
+            line-height: 1.4;
         }
 
-        #bond-zone.has-items::before {
-            opacity: 0;
-        }
-
-        /* 하단 인벤토리 영역 */
+        /* 원소 카드 보관함 */
         #card-container {
             display: flex;
             gap: 8px;
             margin-bottom: 20px;
-            background: #111217;
+            background-color: var(--card-area-color);
             padding: 12px;
-            border-radius: 16px;
-            width: 95%;
-            max-width: 600px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            min-height: 95px;
             justify-content: center;
-            min-height: 110px;
+            align-items: center;
             flex-wrap: wrap;
-            border: 1px solid #2c2d35;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* 하드코어 원소 카드 스타일 (다크 테마) */
+        /* 원소 카드 (모바일 터치 및 클릭 최적화) */
         .element-card {
-            width: 62px;
-            height: 88px;
-            background: var(--card-bg);
-            border: 2px solid #455a64;
-            border-radius: 10px;
+            width: 65px;
+            height: 85px;
+            background-color: #ffffff;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 2px;
-            cursor: grab;
+            padding: 6px 4px;
+            cursor: pointer;
+            user-select: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            position: relative;
-            touch-action: none;
             box-sizing: border-box;
+            transition: transform 0.15s;
         }
 
-        .element-card.dragging {
-            opacity: 0.4;
-            transform: scale(1.05);
-        }
-
-        .atomic-number {
-            font-size: 0.7rem;
-            color: #95a5a6;
-            align-self: flex-start;
-            margin-left: 4px;
-            font-weight: bold;
+        .element-card:active {
+            transform: scale(0.95);
         }
 
         .element-symbol {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #ffffff;
-            margin-top: -4px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #1a1a2e;
         }
 
-        .electron-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2px;
-            width: 95%;
-            min-height: 14px;
+        .electron-dots {
+            font-size: 0.7rem;
+            color: #e74c3c;
+            font-weight: bold;
+            letter-spacing: 0.5px;
         }
 
-        .dot {
-            width: 5px;
-            height: 5px;
-            background-color: #e74c3c;
-            border-radius: 50%;
-        }
-
-        /* 버튼 컨트롤 */
+        /* 하단 제어 버튼 그룹 */
         .btn-group {
             display: flex;
-            gap: 15px;
-            width: 95%;
-            max-width: 600px;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
         }
 
         button {
             flex: 1;
-            padding: 14px;
-            font-size: 1rem;
+            padding: 12px;
+            font-size: 0.95rem;
             font-weight: bold;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             color: white;
-            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: filter 0.2s;
         }
 
-        #check-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        #reset-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        button:active {
+            filter: brightness(0.8);
+        }
 
-        /* 결과 안내 팝업 모달 */
+        #check-btn { background-color: #2ecc71; }
+        #reset-btn { background-color: #e74c3c; }
+
+        /* 결과 알림 모달 */
+        #result-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #222831;
+            border: 2px solid #2ecc71;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 10;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+            box-sizing: border-box;
+        }
+
         #modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 99;
-        }
-
-        #result-modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #2c3e50;
-            padding: 25px;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            z-index: 100;
-            text-align: center;
-            width: 85%;
-            max-width: 380px;
-            border: 2px solid var(--success);
-        }
-
-        #modal-compound {
-            font-size: 1.4rem;
-            color: #f1c40f;
-            background: #1a1a24;
-            padding: 8px 20px;
-            border-radius: 30px;
-            display: inline-block;
-            margin: 10px 0;
-            font-weight: bold;
+            background: rgba(0,0,0,0.7);
+            z-index: 5;
         }
 
         #modal-description {
-            color: #ecf0f1;
+            color: #eeeeee;
+            font-size: 0.85rem;
             line-height: 1.5;
-            font-size: 0.9rem;
             text-align: left;
             white-space: pre-line;
-            background: #233342;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 10px;
-        }
-
-        .close-btn { background: #7f8c8d; color: white; width: 100%; margin-top: 15px; }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
+            background: #393e46;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
 
-    <h1>옥텟 규칙 원소 결합 퍼즐 (Hardcore v2.0)</h1>
+    <h1>옥텟 규칙 원소 결합 퍼즐<br><span style="font-size:1rem; color:#a0a0e0;">(Hardcore v2.0)</span></h1>
     
-    <div id="status-bar">
-        <span id="score-count">해결한 화합물: 0개</span>
-        <span>주기율표 무작위 리롤 시스템</span>
+    <div class="status-bar">
+        <span id="score-view">해결한 화합물: 0개</span>
+        <span>주기율표 매칭 시스템 작동 중</span>
     </div>
 
-    <div id="target-box">
-        <div id="target-name">화합물 불러오는 중...</div>
-        <div id="target-hint">힌트 데이터 분석 중...</div>
+    <div id="info-board">
+        <h2 id="info-title">화학 결합 대기 중</h2>
+        <p id="info-sub">아래 원소 카드를 터치/클릭하여 결합 공간으로 보내세요!</p>
     </div>
 
-    <div id="bond-zone"></div>
-    <div id="card-container"></div>
+    <div id="bond-zone">
+        <div class="zone-placeholder" id="placeholder-text">
+            원소 카드를 클릭하여 결합<br>(여기에 드롭도 가능)
+        </div>
+    </div>
+
+    <div id="card-container">
+        <div class="element-card" data-element="Na" onclick="moveCard(this)">
+            <div class="element-symbol">Na</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="Cl" onclick="moveCard(this)">
+            <div class="element-symbol">Cl</div>
+            <div class="electron-dots">••••••• (7)</div>
+        </div>
+        <div class="element-card" data-element="H" onclick="moveCard(this)">
+            <div class="element-symbol">H</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="H" onclick="moveCard(this)">
+            <div class="element-symbol">H</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="O" onclick="moveCard(this)">
+            <div class="element-symbol">O</div>
+            <div class="electron-dots">•••••• (6)</div>
+        </div>
+    </div>
 
     <div class="btn-group">
         <button id="check-btn">화학 결합 검증 실행</button>
@@ -282,30 +271,121 @@
 
     <div id="modal-overlay"></div>
     <div id="result-modal">
-        <h2 style="color: var(--success); margin-top:0;">결합 구조 검증 성공! ⚗️</h2>
-        <div id="modal-compound"></div>
+        <h2 id="modal-title" style="color: #2ecc71; margin-top:0;">결합 성공! 🎉</h2>
+        <p id="modal-compound" style="font-size: 1.2rem; font-weight: bold; color: #f4d03f; margin: 5px 0;"></p>
         <div id="modal-description"></div>
-        <button class="close-btn" id="next-stage-btn">다음 무작위 난제 풀기</button>
+        <button onclick="closeModal()" style="background-color: #ef476f; color: white; margin-top: 5px; padding: 8px 0; width:100%;">확인</button>
     </div>
 
     <script>
-        // --- 1. 주기율표 1번~20번 원소 완전 데이터 정의 ---
-        const periodicTable = {
-            1: { symbol: "H", val: 1 },   2: { symbol: "He", val: 8 },
-            3: { symbol: "Li", val: 1 },  4: { symbol: "Be", val: 2 },
-            5: { symbol: "B", val: 3 },   6: { symbol: "C", val: 4 },
-            7: { symbol: "N", val: 5 },   8: { symbol: "O", val: 6 },
-            9: { symbol: "F", val: 7 },   10: { symbol: "Ne", val: 8 },
-            11: { symbol: "Na", val: 1 }, 12: { symbol: "Mg", val: 2 },
-            13: { symbol: "Al", val: 3 }, 14: { symbol: "Si", val: 4 },
-            15: { symbol: "P", val: 5 },  16: { symbol: "S", val: 6 },
-            17: { symbol: "Cl", val: 7 }, 18: { symbol: "Ar", val: 8 },
-            19: { symbol: "K", val: 1 },  20: { symbol: "Ca", val: 2 }
-        };
+        const bondZone = document.getElementById('bond-zone');
+        const cardContainer = document.getElementById('card-container');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const placeholderText = document.getElementById('placeholder-text');
+        const scoreView = document.getElementById('score-view');
+        
+        const modal = document.getElementById('result-modal');
+        const overlay = document.getElementById('modal-overlay');
 
-        // --- 2. [난이도 대폭 향상] 15가지 고난도 화학물질 데이터베이스 ---
-        const compoundsPool = [
-            { formula: "H2O", name: "물", req: { "H": 2, "O": 1 }, hint: "산소 원자 1개와 수소 원자 2개가 단일 공유 결합을 형성하는 가장 대표적인 생명의 물질입니다." },
-            { formula: "CO2", name: "이산화탄소", req: { "C": 1, "O": 2 }, hint: "중앙의 탄소 원자가 양쪽의 산소 원자와 각각 강한 이중 공유 결합을 형성합니다." },
-            { formula: "NaCl", name: "염화나트륨", req: { "Na": 1, "Cl": 1 }, hint: "금속 양이온(Na⁺)과 비금속 음이온(Cl⁻)이 정전기적 인력으로 단단하게 뭉치는 이온 결합 물질입니다." },
-            { formula: "CH4", name: "메탄", req: { "C": 1, "H": 4 }, hint: "탄소 1개를 중심으로 수소 4개가 정사면체 구조로
+        let solvedCount = 0;
+
+        // [핵심 해결책] 모바일 드래그 앤 드롭 에러 우회를 위한 "원터치 이동 메커니즘" 도입
+        function moveCard(card) {
+            if (card.parentElement === cardContainer) {
+                bondZone.appendChild(card);
+            } else {
+                cardContainer.appendChild(card);
+            }
+            togglePlaceholder();
+        }
+
+        // 플레이스홀더 글자 가리기 처리
+        function togglePlaceholder() {
+            const currentElements = bondZone.querySelectorAll('.element-card');
+            if (currentElements.length > 0) {
+                placeholderText.style.display = 'none';
+            } else {
+                placeholderText.style.display = 'block';
+            }
+        }
+
+        // PC 사용자를 위한 마우스 드래그 앤 드롭 지원 추가
+        let draggedCard = null;
+        document.querySelectorAll('.element-card').forEach(card => {
+            card.setAttribute('draggable', 'true');
+            card.addEventListener('dragstart', () => { draggedCard = card; });
+        });
+
+        bondZone.addEventListener('dragover', (e) => { e.preventDefault(); bondZone.classList.add('drag-over'); });
+        bondZone.addEventListener('dragleave', () => { bondZone.classList.remove('drag-over'); });
+        bondZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            bondZone.classList.remove('drag-over');
+            if (draggedCard) { bondZone.appendChild(draggedCard); togglePlaceholder(); }
+        });
+
+        cardContainer.addEventListener('dragover', (e) => { e.preventDefault(); });
+        cardContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedCard) { cardContainer.appendChild(draggedCard); togglePlaceholder(); }
+        });
+
+        // 화학 결합 판단 알고리즘
+        checkBtn.addEventListener('click', () => {
+            const currentCards = Array.from(bondZone.querySelectorAll('.element-card'));
+            const elements = currentCards.map(card => card.getAttribute('data-element'));
+            
+            const counts = {};
+            elements.forEach(el => counts[el] = (counts[el] || 0) + 1);
+
+            // 1. NaCl 검증
+            if (counts['Na'] === 1 && counts['Cl'] === 1 && elements.length === 2) {
+                solvedCount++;
+                scoreView.innerText = `해결한 화합물: ${solvedCount}개`;
+                showSuccess(
+                    "염화나트륨 (NaCl)", 
+                    "[이온 결합]\n나트륨(Na)원자의 전자가 염소(Cl)원자로 1개 완전히 이동하여, 두 이온 모두 최외각 전자 8개를 채워 옥텟 규칙을 만족합니다.\n\n[일상 속 쓰임새]\n우리가 흔히 쓰는 '소금'의 주성분으로, 인체의 신진대사와 전해질 균형을 유지하는 필수 원소입니다."
+                );
+            } 
+            // 2. H2O 검증
+            else if (counts['H'] === 2 && counts['O'] === 1 && elements.length === 3) {
+                solvedCount++;
+                scoreView.innerText = `해결한 화합물: ${solvedCount}개`;
+                showSuccess(
+                    "물 (H₂O)", 
+                    "[공유 결합]\n산소(O) 원자 1개가 수소(H) 원자 2개와 각각 전자쌍을 한 개씩 공유하여 옥텟 규칙을 완벽하게 만족합니다.\n\n[일상 속 쓰임새]\n지구상의 모든 생명 활동을 지탱하는 기본 물질이며, 뛰어난 용해력으로 생체 내 영양소 운반 역할을 담당합니다."
+                );
+            } 
+            // 3. 결합 실패 알림
+            else {
+                alert("옥텟 규칙 위반! 원소 조합의 전자 수가 비활성 기체의 전자 배치와 일치하지 않습니다. 다시 조합해보세요.");
+            }
+        });
+
+        // 초기화 버튼
+        resetBtn.addEventListener('click', () => {
+            const cards = Array.from(bondZone.querySelectorAll('.element-card'));
+            cards.forEach(card => cardContainer.appendChild(card));
+            togglePlaceholder();
+        });
+
+        // 모달창 제어 함수
+        function showSuccess(compound, description) {
+            document.getElementById('modal-compound').innerText = compound;
+            document.getElementById('modal-description').innerText = description;
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            // 성공 후 원소 자동 회수
+            const cards = Array.from(bondZone.querySelectorAll('.element-card'));
+            cards.forEach(card => cardContainer.appendChild(card));
+            togglePlaceholder();
+        }
+    </script>
+</body>
+</html>
