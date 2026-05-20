@@ -35,6 +35,7 @@
         .status-bar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             width: 100%;
             max-width: 400px;
             font-size: 0.85rem;
@@ -43,7 +44,19 @@
             padding: 0 5px;
         }
 
-        /* 메인 알림 보드 (로딩 메시지 제거하고 인게임 정보창으로 변경) */
+        /* 리롤 버튼 스타일 */
+        #reroll-btn {
+            background-color: var(--accent-purple);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* 메인 안내 보드 */
         #info-board {
             width: 100%;
             max-width: 400px;
@@ -68,7 +81,7 @@
             color: #e0e0e0;
         }
 
-        /* 결합 공간 (점선 영역) */
+        /* 결합 공간 */
         #bond-zone {
             width: 100%;
             max-width: 400px;
@@ -83,11 +96,6 @@
             margin-bottom: 15px;
             position: relative;
             box-sizing: border-box;
-            transition: background 0.3s;
-        }
-
-        #bond-zone.drag-over {
-            background-color: rgba(129, 52, 175, 0.3);
         }
 
         .zone-placeholder {
@@ -97,19 +105,20 @@
             pointer-events: none;
             text-align: center;
             line-height: 1.4;
+            z-index: 0;
         }
 
         /* 원소 카드 보관함 */
         #card-container {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 20px;
             background-color: var(--card-area-color);
-            padding: 12px;
+            padding: 15px;
             border-radius: 12px;
             width: 100%;
             max-width: 400px;
-            min-height: 95px;
+            min-height: 110px;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
@@ -117,7 +126,7 @@
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* 원소 카드 (모바일 터치 및 클릭 최적화) */
+        /* 원소 카드 (터치/드래그 최적화) */
         .element-card {
             width: 65px;
             height: 85px;
@@ -129,21 +138,18 @@
             justify-content: space-between;
             align-items: center;
             padding: 6px 4px;
-            cursor: pointer;
+            cursor: grab;
             user-select: none;
+            touch-action: none; /* 모달/스크롤 간섭 방지 */
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             box-sizing: border-box;
-            transition: transform 0.15s;
-        }
-
-        .element-card:active {
-            transform: scale(0.95);
+            position: relative;
+            z-index: 2;
         }
 
         .element-symbol {
             font-size: 1.4rem;
             font-weight: bold;
-            color: #1a1a2e;
         }
 
         .electron-dots {
@@ -153,7 +159,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* 하단 제어 버튼 그룹 */
+        /* 하단 제어 버튼 */
         .btn-group {
             display: flex;
             gap: 12px;
@@ -161,7 +167,7 @@
             max-width: 400px;
         }
 
-        button {
+        button.main-btn {
             flex: 1;
             padding: 12px;
             font-size: 0.95rem;
@@ -171,32 +177,25 @@
             cursor: pointer;
             color: white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: filter 0.2s;
-        }
-
-        button:active {
-            filter: brightness(0.8);
         }
 
         #check-btn { background-color: #2ecc71; }
         #reset-btn { background-color: #e74c3c; }
 
-        /* 결과 알림 모달 */
+        /* 결과 팝업창 */
         #result-modal {
             display: none;
             position: fixed;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             background-color: #222831;
             border: 2px solid #2ecc71;
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 10;
+            z-index: 100;
             text-align: center;
-            width: 85%;
-            max-width: 320px;
+            width: 85%; max-width: 320px;
             box-sizing: border-box;
         }
 
@@ -205,7 +204,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7);
-            z-index: 5;
+            z-index: 99;
         }
 
         #modal-description {
@@ -227,46 +226,25 @@
     
     <div class="status-bar">
         <span id="score-view">해결한 화합물: 0개</span>
-        <span>주기율표 매칭 시스템 작동 중</span>
+        <button id="reroll-btn">주기율표 무작위 리롤 ↻</button>
     </div>
 
     <div id="info-board">
-        <h2 id="info-title">화학 결합 대기 중</h2>
-        <p id="info-sub">아래 원소 카드를 터치/클릭하여 결합 공간으로 보내세요!</p>
+        <h2 id="info-title">실시간 원소 결합 시스템</h2>
+        <p id="info-sub">원소 카드를 드래그하거나 터치하여 결합하세요!</p>
     </div>
 
     <div id="bond-zone">
         <div class="zone-placeholder" id="placeholder-text">
-            원소 카드를 클릭하여 결합<br>(여기에 드롭도 가능)
+            원소 카드를 드래그하여 결합<br>(터치/클릭 이동도 지원)
         </div>
     </div>
 
-    <div id="card-container">
-        <div class="element-card" data-element="Na" onclick="moveCard(this)">
-            <div class="element-symbol">Na</div>
-            <div class="electron-dots">• (1)</div>
-        </div>
-        <div class="element-card" data-element="Cl" onclick="moveCard(this)">
-            <div class="element-symbol">Cl</div>
-            <div class="electron-dots">••••••• (7)</div>
-        </div>
-        <div class="element-card" data-element="H" onclick="moveCard(this)">
-            <div class="element-symbol">H</div>
-            <div class="electron-dots">• (1)</div>
-        </div>
-        <div class="element-card" data-element="H" onclick="moveCard(this)">
-            <div class="element-symbol">H</div>
-            <div class="electron-dots">• (1)</div>
-        </div>
-        <div class="element-card" data-element="O" onclick="moveCard(this)">
-            <div class="element-symbol">O</div>
-            <div class="electron-dots">•••••• (6)</div>
-        </div>
-    </div>
+    <div id="card-container"></div>
 
     <div class="btn-group">
-        <button id="check-btn">화학 결합 검증 실행</button>
-        <button id="reset-btn">원소 회수 (초기화)</button>
+        <button id="check-btn" class="main-btn">화학 결합 검증 실행</button>
+        <button id="reset-btn" class="main-btn">원소 회수 (초기화)</button>
     </div>
 
     <div id="modal-overlay"></div>
@@ -274,7 +252,7 @@
         <h2 id="modal-title" style="color: #2ecc71; margin-top:0;">결합 성공! 🎉</h2>
         <p id="modal-compound" style="font-size: 1.2rem; font-weight: bold; color: #f4d03f; margin: 5px 0;"></p>
         <div id="modal-description"></div>
-        <button onclick="closeModal()" style="background-color: #ef476f; color: white; margin-top: 5px; padding: 8px 0; width:100%;">확인</button>
+        <button onclick="closeModal()" style="background-color: #ef476f; color: white; margin-top: 5px; padding: 8px 0; width:100%; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">확인</button>
     </div>
 
     <script>
@@ -282,56 +260,130 @@
         const cardContainer = document.getElementById('card-container');
         const checkBtn = document.getElementById('check-btn');
         const resetBtn = document.getElementById('reset-btn');
+        const rerollBtn = document.getElementById('reroll-btn');
         const placeholderText = document.getElementById('placeholder-text');
         const scoreView = document.getElementById('score-view');
-        
         const modal = document.getElementById('result-modal');
         const overlay = document.getElementById('modal-overlay');
 
         let solvedCount = 0;
 
-        // [핵심 해결책] 모바일 드래그 앤 드롭 에러 우회를 위한 "원터치 이동 메커니즘" 도입
-        function moveCard(card) {
-            if (card.parentElement === cardContainer) {
-                bondZone.appendChild(card);
-            } else {
-                cardContainer.appendChild(card);
-            }
+        // 원소별 스펙 설정 데이터 (기획서 반영 - 물, 소금, 이산화탄소 대응)
+        const elementTemplates = {
+            'Na': { symbol: 'Na', dots: '• (1)', color: '#3498db' },
+            'Cl': { symbol: 'Cl', dots: '••••••• (7)', color: '#e67e22' },
+            'H':  { symbol: 'H',  dots: '• (1)', color: '#2ecc71' },
+            'O':  { symbol: 'O',  dots: '•••••• (6)', color: '#e74c3c' },
+            'C':  { symbol: 'C',  dots: '•••• (4)', color: '#9b59b6' }
+        };
+
+        // --- [기능 1] 주기율표 무작위 리롤 시스템 구현 ---
+        function rerollElements() {
+            cardContainer.innerHTML = '';
+            bondZone.querySelectorAll('.element-card').forEach(c => c.remove());
             togglePlaceholder();
+
+            // 풀 수 있는 조합 세트를 무작위로 다채롭게 섞어 출현 시킵니다.
+            const recipes = [
+                ['Na', 'Cl', 'H', 'H', 'O', 'C'], 
+                ['H', 'H', 'O', 'H', 'H', 'O'],     
+                ['Na', 'Cl', 'Na', 'Cl', 'O', 'H'], 
+                ['C', 'O', 'O', 'H', 'H', 'O']      
+            ];
+            const chosen = recipes[Math.floor(Math.random() * recipes.length)];
+            chosen.sort(() => Math.random() - 0.5); // 셔플
+
+            chosen.forEach(elType => {
+                const data = elementTemplates[elType];
+                const card = document.createElement('div');
+                card.className = 'element-card';
+                card.setAttribute('data-element', elType);
+                card.innerHTML = `
+                    <div class="element-symbol" style="color: ${data.color}">${data.symbol}</div>
+                    <div class="electron-dots">${data.dots}</div>
+                `;
+                cardContainer.appendChild(card);
+                makeElementDraggable(card); // 드래그 엔진 바인딩
+            });
         }
 
-        // 플레이스홀더 글자 가리기 처리
+        // --- [기능 2] 스마트폰/PC 동시 완벽 지원 드래그 엔진 (PointerEvents) ---
+        function makeElementDraggable(card) {
+            let isDragging = false;
+            let startX = 0, startY = 0;
+            let currentX = 0, currentY = 0;
+
+            // 터치/클릭 시 이동 시스템 시작
+            card.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                card.style.zIndex = 1000;
+                card.style.cursor = 'grabbing';
+                
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const transform = card.style.transform;
+                if (transform && transform.includes('translate')) {
+                    const matches = transform.match(/translate\(([^px]+)px,\s*([^px]+)px\)/);
+                    if (matches) {
+                        currentX = parseFloat(matches[1]);
+                        currentY = parseFloat(matches[2]);
+                    }
+                } else {
+                    currentX = 0; currentY = 0;
+                }
+                card.setPointerCapture(e.pointerId);
+            });
+
+            card.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                card.style.transform = `translate(${currentX + dx}px, ${currentY + dy}px)`;
+            });
+
+            card.addEventListener('pointerup', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                card.releasePointerCapture(e.pointerId);
+                card.style.zIndex = 2;
+                card.style.cursor = 'grab';
+
+                // 현재 놓인 위치 판정 계산
+                const bondRect = bondZone.getBoundingClientRect();
+                const cardRect = card.getBoundingClientRect();
+                const cx = cardRect.left + cardRect.width / 2;
+                const cy = cardRect.top + cardRect.height / 2;
+
+                card.style.transform = ''; // 임시 물리 좌표 클리어
+
+                // 결합존 바운더리 내에 드롭되었는지 체크
+                if (cx >= bondRect.left && cx <= bondRect.right && cy >= bondRect.top && cy <= bondRect.bottom) {
+                    bondZone.appendChild(card);
+                } else {
+                    cardContainer.appendChild(card);
+                }
+                togglePlaceholder();
+            });
+
+            // 팁: 드래그가 귀찮은 모바일 유저를 위해 그냥 "가볍게 탭(클릭)"해도 오고 가도록 서브 트리거 추가
+            card.addEventListener('click', () => {
+                if (card.style.transform === '') {
+                    if (card.parentElement === cardContainer) {
+                        bondZone.appendChild(card);
+                    } else {
+                        cardContainer.appendChild(card);
+                    }
+                    togglePlaceholder();
+                }
+            });
+        }
+
         function togglePlaceholder() {
-            const currentElements = bondZone.querySelectorAll('.element-card');
-            if (currentElements.length > 0) {
-                placeholderText.style.display = 'none';
-            } else {
-                placeholderText.style.display = 'block';
-            }
+            placeholderText.style.display = bondZone.querySelectorAll('.element-card').length > 0 ? 'none' : 'block';
         }
 
-        // PC 사용자를 위한 마우스 드래그 앤 드롭 지원 추가
-        let draggedCard = null;
-        document.querySelectorAll('.element-card').forEach(card => {
-            card.setAttribute('draggable', 'true');
-            card.addEventListener('dragstart', () => { draggedCard = card; });
-        });
-
-        bondZone.addEventListener('dragover', (e) => { e.preventDefault(); bondZone.classList.add('drag-over'); });
-        bondZone.addEventListener('dragleave', () => { bondZone.classList.remove('drag-over'); });
-        bondZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            bondZone.classList.remove('drag-over');
-            if (draggedCard) { bondZone.appendChild(draggedCard); togglePlaceholder(); }
-        });
-
-        cardContainer.addEventListener('dragover', (e) => { e.preventDefault(); });
-        cardContainer.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if (draggedCard) { cardContainer.appendChild(draggedCard); togglePlaceholder(); }
-        });
-
-        // 화학 결합 판단 알고리즘
+        // --- [기능 3] 기획서 내용 완벽 반영 화학식 검증 알고리즘 ---
         checkBtn.addEventListener('click', () => {
             const currentCards = Array.from(bondZone.querySelectorAll('.element-card'));
             const elements = currentCards.map(card => card.getAttribute('data-element'));
@@ -339,53 +391,12 @@
             const counts = {};
             elements.forEach(el => counts[el] = (counts[el] || 0) + 1);
 
-            // 1. NaCl 검증
+            // 1. 소금 (NaCl) 이온 결합 검증
             if (counts['Na'] === 1 && counts['Cl'] === 1 && elements.length === 2) {
-                solvedCount++;
-                scoreView.innerText = `해결한 화합물: ${solvedCount}개`;
-                showSuccess(
-                    "염화나트륨 (NaCl)", 
-                    "[이온 결합]\n나트륨(Na)원자의 전자가 염소(Cl)원자로 1개 완전히 이동하여, 두 이온 모두 최외각 전자 8개를 채워 옥텟 규칙을 만족합니다.\n\n[일상 속 쓰임새]\n우리가 흔히 쓰는 '소금'의 주성분으로, 인체의 신진대사와 전해질 균형을 유지하는 필수 원소입니다."
-                );
+                successProcess("염화나트륨 (NaCl)", 
+                    "[이온 결합]\n나트륨(Na)의 최외각 전자 1개가 염소(Cl) 쪽으로 완벽히 이동하면서 두 원소 모두 최외각 전자 8개를 만족하여 강력한 정전기적 인력으로 결합합니다.\n\n[일상 속 쓰임새]\n우리가 매일 섭취하는 생명 필수재인 '소금'입니다. 음식의 맛을 낼 뿐만 아니라 체내 삼투압 조절에 기여합니다.");
             } 
-            // 2. H2O 검증
+            // 2. 물 (H2O) 공유 결합 검증
             else if (counts['H'] === 2 && counts['O'] === 1 && elements.length === 3) {
-                solvedCount++;
-                scoreView.innerText = `해결한 화합물: ${solvedCount}개`;
-                showSuccess(
-                    "물 (H₂O)", 
-                    "[공유 결합]\n산소(O) 원자 1개가 수소(H) 원자 2개와 각각 전자쌍을 한 개씩 공유하여 옥텟 규칙을 완벽하게 만족합니다.\n\n[일상 속 쓰임새]\n지구상의 모든 생명 활동을 지탱하는 기본 물질이며, 뛰어난 용해력으로 생체 내 영양소 운반 역할을 담당합니다."
-                );
-            } 
-            // 3. 결합 실패 알림
-            else {
-                alert("옥텟 규칙 위반! 원소 조합의 전자 수가 비활성 기체의 전자 배치와 일치하지 않습니다. 다시 조합해보세요.");
-            }
-        });
-
-        // 초기화 버튼
-        resetBtn.addEventListener('click', () => {
-            const cards = Array.from(bondZone.querySelectorAll('.element-card'));
-            cards.forEach(card => cardContainer.appendChild(card));
-            togglePlaceholder();
-        });
-
-        // 모달창 제어 함수
-        function showSuccess(compound, description) {
-            document.getElementById('modal-compound').innerText = compound;
-            document.getElementById('modal-description').innerText = description;
-            modal.style.display = 'block';
-            overlay.style.display = 'block';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-            overlay.style.display = 'none';
-            // 성공 후 원소 자동 회수
-            const cards = Array.from(bondZone.querySelectorAll('.element-card'));
-            cards.forEach(card => cardContainer.appendChild(card));
-            togglePlaceholder();
-        }
-    </script>
-</body>
-</html>
+                successProcess("물 (H₂O)", 
+                    "[공유 결합]\n산소(O)가 부족한 전자 2개를 채우기 위해 수소(H) 원자 2개와 각각 전자쌍을 한 쌍씩 공유함으로써, 수소는 2개, 산소는
