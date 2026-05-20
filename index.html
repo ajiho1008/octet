@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>옥텟 규칙 원소 결합 퍼즐 (Hardcore v2.0)</title>
+    <title>옥텟 규칙 원소 결합 퍼즐 (v3.0 안심 버전)</title>
     <style>
         :root {
             --bg-color: #1a1a2e;
@@ -44,19 +44,17 @@
             padding: 0 5px;
         }
 
-        /* 리롤 버튼 스타일 */
         #reroll-btn {
             background-color: var(--accent-purple);
             color: white;
             border: none;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             cursor: pointer;
             font-weight: bold;
         }
 
-        /* 메인 안내 보드 */
         #info-board {
             width: 100%;
             max-width: 400px;
@@ -85,17 +83,19 @@
         #bond-zone {
             width: 100%;
             max-width: 400px;
-            height: 200px;
+            height: 180px;
             border: 3px dashed var(--accent-purple);
             border-radius: 15px;
             background-color: rgba(22, 36, 71, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
             position: relative;
             box-sizing: border-box;
+            flex-wrap: wrap;
+            padding: 10px;
         }
 
         .zone-placeholder {
@@ -105,16 +105,16 @@
             pointer-events: none;
             text-align: center;
             line-height: 1.4;
-            z-index: 0;
+            z-index: 1;
         }
 
         /* 원소 카드 보관함 */
         #card-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 20px;
             background-color: var(--card-area-color);
-            padding: 15px;
+            padding: 12px;
             border-radius: 12px;
             width: 100%;
             max-width: 400px;
@@ -126,40 +126,40 @@
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* 원소 카드 (터치/드래그 최적화) */
+        /* 원소 카드 스타일 (절대 안 깨지도록 색상 강제 명시) */
         .element-card {
-            width: 65px;
-            height: 85px;
-            background-color: #ffffff;
+            width: 62px;
+            height: 82px;
+            background-color: #ffffff !important;
             border: 2px solid #bdc3c7;
             border-radius: 8px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 4px;
-            cursor: grab;
+            padding: 6px 2px;
+            cursor: pointer;
             user-select: none;
-            touch-action: none; /* 모달/스크롤 간섭 방지 */
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             box-sizing: border-box;
-            position: relative;
-            z-index: 2;
+            color: #1a1a2e !important; /* 글자색 묻힘 방지 */
         }
 
         .element-symbol {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: bold;
+            pointer-events: none; /* 클릭 타겟 에러 방지 */
         }
 
         .electron-dots {
-            font-size: 0.7rem;
-            color: #e74c3c;
+            font-size: 0.65rem;
+            color: #e74c3c !important;
             font-weight: bold;
             letter-spacing: 0.5px;
+            pointer-events: none;
         }
 
-        /* 하단 제어 버튼 */
+        /* 제어 버튼 */
         .btn-group {
             display: flex;
             gap: 12px;
@@ -222,25 +222,46 @@
 </head>
 <body>
 
-    <h1>옥텟 규칙 원소 결합 퍼즐<br><span style="font-size:1rem; color:#a0a0e0;">(Hardcore v2.0)</span></h1>
+    <h1>옥텟 규칙 원소 결합 퍼즐<br><span style="font-size:0.9rem; color:#a0a0e0;">(v3.0 실시간 안심 버전)</span></h1>
     
     <div class="status-bar">
         <span id="score-view">해결한 화합물: 0개</span>
-        <button id="reroll-btn">주기율표 무작위 리롤 ↻</button>
+        <button id="reroll-btn">원소 무작위 리롤 ↻</button>
     </div>
 
     <div id="info-board">
         <h2 id="info-title">실시간 원소 결합 시스템</h2>
-        <p id="info-sub">원소 카드를 드래그하거나 터치하여 결합하세요!</p>
+        <p id="info-sub">원소 카드를 터치하거나 클릭하면 이동합니다!</p>
     </div>
 
     <div id="bond-zone">
         <div class="zone-placeholder" id="placeholder-text">
-            원소 카드를 드래그하여 결합<br>(터치/클릭 이동도 지원)
+            원소 카드를 터치하여 결합 구역으로 이동하세요
         </div>
     </div>
 
-    <div id="card-container"></div>
+    <div id="card-container">
+        <div class="element-card" data-element="Na">
+            <div class="element-symbol" style="color: #3498db">Na</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="Cl">
+            <div class="element-symbol" style="color: #e67e22">Cl</div>
+            <div class="electron-dots">••••••• (7)</div>
+        </div>
+        <div class="element-card" data-element="H">
+            <div class="element-symbol" style="color: #2ecc71">H</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="H">
+            <div class="element-symbol" style="color: #2ecc71">H</div>
+            <div class="electron-dots">• (1)</div>
+        </div>
+        <div class="element-card" data-element="O">
+            <div class="element-symbol" style="color: #e74c3c">O</div>
+            <div class="electron-dots">•••••• (6)</div>
+        </div>
+    </div>
 
     <div class="btn-group">
         <button id="check-btn" class="main-btn">화학 결합 검증 실행</button>
@@ -252,151 +273,4 @@
         <h2 id="modal-title" style="color: #2ecc71; margin-top:0;">결합 성공! 🎉</h2>
         <p id="modal-compound" style="font-size: 1.2rem; font-weight: bold; color: #f4d03f; margin: 5px 0;"></p>
         <div id="modal-description"></div>
-        <button onclick="closeModal()" style="background-color: #ef476f; color: white; margin-top: 5px; padding: 8px 0; width:100%; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">확인</button>
-    </div>
-
-    <script>
-        const bondZone = document.getElementById('bond-zone');
-        const cardContainer = document.getElementById('card-container');
-        const checkBtn = document.getElementById('check-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const rerollBtn = document.getElementById('reroll-btn');
-        const placeholderText = document.getElementById('placeholder-text');
-        const scoreView = document.getElementById('score-view');
-        const modal = document.getElementById('result-modal');
-        const overlay = document.getElementById('modal-overlay');
-
-        let solvedCount = 0;
-
-        // 원소별 스펙 설정 데이터 (기획서 반영 - 물, 소금, 이산화탄소 대응)
-        const elementTemplates = {
-            'Na': { symbol: 'Na', dots: '• (1)', color: '#3498db' },
-            'Cl': { symbol: 'Cl', dots: '••••••• (7)', color: '#e67e22' },
-            'H':  { symbol: 'H',  dots: '• (1)', color: '#2ecc71' },
-            'O':  { symbol: 'O',  dots: '•••••• (6)', color: '#e74c3c' },
-            'C':  { symbol: 'C',  dots: '•••• (4)', color: '#9b59b6' }
-        };
-
-        // --- [기능 1] 주기율표 무작위 리롤 시스템 구현 ---
-        function rerollElements() {
-            cardContainer.innerHTML = '';
-            bondZone.querySelectorAll('.element-card').forEach(c => c.remove());
-            togglePlaceholder();
-
-            // 풀 수 있는 조합 세트를 무작위로 다채롭게 섞어 출현 시킵니다.
-            const recipes = [
-                ['Na', 'Cl', 'H', 'H', 'O', 'C'], 
-                ['H', 'H', 'O', 'H', 'H', 'O'],     
-                ['Na', 'Cl', 'Na', 'Cl', 'O', 'H'], 
-                ['C', 'O', 'O', 'H', 'H', 'O']      
-            ];
-            const chosen = recipes[Math.floor(Math.random() * recipes.length)];
-            chosen.sort(() => Math.random() - 0.5); // 셔플
-
-            chosen.forEach(elType => {
-                const data = elementTemplates[elType];
-                const card = document.createElement('div');
-                card.className = 'element-card';
-                card.setAttribute('data-element', elType);
-                card.innerHTML = `
-                    <div class="element-symbol" style="color: ${data.color}">${data.symbol}</div>
-                    <div class="electron-dots">${data.dots}</div>
-                `;
-                cardContainer.appendChild(card);
-                makeElementDraggable(card); // 드래그 엔진 바인딩
-            });
-        }
-
-        // --- [기능 2] 스마트폰/PC 동시 완벽 지원 드래그 엔진 (PointerEvents) ---
-        function makeElementDraggable(card) {
-            let isDragging = false;
-            let startX = 0, startY = 0;
-            let currentX = 0, currentY = 0;
-
-            // 터치/클릭 시 이동 시스템 시작
-            card.addEventListener('pointerdown', (e) => {
-                isDragging = true;
-                card.style.zIndex = 1000;
-                card.style.cursor = 'grabbing';
-                
-                startX = e.clientX;
-                startY = e.clientY;
-                
-                const transform = card.style.transform;
-                if (transform && transform.includes('translate')) {
-                    const matches = transform.match(/translate\(([^px]+)px,\s*([^px]+)px\)/);
-                    if (matches) {
-                        currentX = parseFloat(matches[1]);
-                        currentY = parseFloat(matches[2]);
-                    }
-                } else {
-                    currentX = 0; currentY = 0;
-                }
-                card.setPointerCapture(e.pointerId);
-            });
-
-            card.addEventListener('pointermove', (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                card.style.transform = `translate(${currentX + dx}px, ${currentY + dy}px)`;
-            });
-
-            card.addEventListener('pointerup', (e) => {
-                if (!isDragging) return;
-                isDragging = false;
-                card.releasePointerCapture(e.pointerId);
-                card.style.zIndex = 2;
-                card.style.cursor = 'grab';
-
-                // 현재 놓인 위치 판정 계산
-                const bondRect = bondZone.getBoundingClientRect();
-                const cardRect = card.getBoundingClientRect();
-                const cx = cardRect.left + cardRect.width / 2;
-                const cy = cardRect.top + cardRect.height / 2;
-
-                card.style.transform = ''; // 임시 물리 좌표 클리어
-
-                // 결합존 바운더리 내에 드롭되었는지 체크
-                if (cx >= bondRect.left && cx <= bondRect.right && cy >= bondRect.top && cy <= bondRect.bottom) {
-                    bondZone.appendChild(card);
-                } else {
-                    cardContainer.appendChild(card);
-                }
-                togglePlaceholder();
-            });
-
-            // 팁: 드래그가 귀찮은 모바일 유저를 위해 그냥 "가볍게 탭(클릭)"해도 오고 가도록 서브 트리거 추가
-            card.addEventListener('click', () => {
-                if (card.style.transform === '') {
-                    if (card.parentElement === cardContainer) {
-                        bondZone.appendChild(card);
-                    } else {
-                        cardContainer.appendChild(card);
-                    }
-                    togglePlaceholder();
-                }
-            });
-        }
-
-        function togglePlaceholder() {
-            placeholderText.style.display = bondZone.querySelectorAll('.element-card').length > 0 ? 'none' : 'block';
-        }
-
-        // --- [기능 3] 기획서 내용 완벽 반영 화학식 검증 알고리즘 ---
-        checkBtn.addEventListener('click', () => {
-            const currentCards = Array.from(bondZone.querySelectorAll('.element-card'));
-            const elements = currentCards.map(card => card.getAttribute('data-element'));
-            
-            const counts = {};
-            elements.forEach(el => counts[el] = (counts[el] || 0) + 1);
-
-            // 1. 소금 (NaCl) 이온 결합 검증
-            if (counts['Na'] === 1 && counts['Cl'] === 1 && elements.length === 2) {
-                successProcess("염화나트륨 (NaCl)", 
-                    "[이온 결합]\n나트륨(Na)의 최외각 전자 1개가 염소(Cl) 쪽으로 완벽히 이동하면서 두 원소 모두 최외각 전자 8개를 만족하여 강력한 정전기적 인력으로 결합합니다.\n\n[일상 속 쓰임새]\n우리가 매일 섭취하는 생명 필수재인 '소금'입니다. 음식의 맛을 낼 뿐만 아니라 체내 삼투압 조절에 기여합니다.");
-            } 
-            // 2. 물 (H2O) 공유 결합 검증
-            else if (counts['H'] === 2 && counts['O'] === 1 && elements.length === 3) {
-                successProcess("물 (H₂O)", 
-                    "[공유 결합]\n산소(O)가 부족한 전자 2개를 채우기 위해 수소(H) 원자 2개와 각각 전자쌍을 한 쌍씩 공유함으로써, 수소는 2개, 산소는
+        <button onclick="closeModal()" style="background-color: #ef476f; color: white; margin-top: 5px; padding: 12px 0; width:100%; border:none; border-radius:5px; font-weight:bold; cursor:pointer
